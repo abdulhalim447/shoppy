@@ -1,14 +1,17 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../config/constants/app_constants.dart';
 import '../../../../config/theme/app_colors.dart';
 import '../../../../config/theme/text_styles.dart';
 import '../../../../core/widgets/shimmer_placeholder.dart';
 import '../../../home/data/models/product_model.dart';
+import '../../data/models/delivery_charge_model.dart';
+import '../providers/delivery_charge_provider.dart';
 
 /// Product order summary widget for checkout
-class ProductOrderSummary extends StatefulWidget {
+class ProductOrderSummary extends ConsumerStatefulWidget {
   final ProductModel product;
   final int initialQuantity;
   final Function(int)? onQuantityChanged;
@@ -17,16 +20,18 @@ class ProductOrderSummary extends StatefulWidget {
     : super(key: key);
 
   @override
-  State<ProductOrderSummary> createState() => _ProductOrderSummaryState();
+  ConsumerState<ProductOrderSummary> createState() => _ProductOrderSummaryState();
 }
 
-class _ProductOrderSummaryState extends State<ProductOrderSummary> {
+class _ProductOrderSummaryState extends ConsumerState<ProductOrderSummary> {
   late int _quantity;
+  DeliveryCharge? _selectedShippingOption;
 
   @override
   void initState() {
     super.initState();
     _quantity = widget.initialQuantity;
+    Future.microtask(() => ref.read(deliveryChargeProvider.notifier).fetchDeliveryCharges());
   }
 
   void _incrementQuantity() {
@@ -47,9 +52,23 @@ class _ProductOrderSummaryState extends State<ProductOrderSummary> {
 
   @override
   Widget build(BuildContext context) {
-    // Parse price
+    final deliveryChargeState = ref.watch(deliveryChargeProvider);
     final price = double.tryParse(widget.product.price) ?? 0.0;
     final subtotal = price * _quantity;
+    final shippingCost = _selectedShippingOption?.charge ?? 0.0;
+    final total = subtotal + shippingCost;
+
+    if (deliveryChargeState.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (deliveryChargeState.error != null) {
+      return Center(child: Text(deliveryChargeState.error!));
+    }
+
+    if (_selectedShippingOption == null && deliveryChargeState.deliveryCharges.isNotEmpty) {
+      _selectedShippingOption = deliveryChargeState.deliveryCharges.first;
+    }
 
     return Container(
       decoration: BoxDecoration(
@@ -192,7 +211,28 @@ class _ProductOrderSummaryState extends State<ProductOrderSummary> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Shipping', style: AppTextStyles.bodyMedium),
-              Text('FREE', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.success)),
+              DropdownButton<DeliveryCharge>(
+                value: _selectedShippingOption,
+                onChanged: (DeliveryCharge? newValue) {
+                  setState(() {
+                    _selectedShippingOption = newValue!;
+                  });
+                },
+                items: deliveryChargeState.deliveryCharges.map((DeliveryCharge option) {
+                  return DropdownMenuItem<DeliveryCharge>(value: option, child: Text(option.locationName));
+                }).toList(),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppConstants.spacingSm),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Delivery Charge', style: AppTextStyles.bodyMedium),
+              Text(
+                _selectedShippingOption?.formattedCharge ?? '৳0.00',
+                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.success),
+              ),
             ],
           ),
           const SizedBox(height: AppConstants.spacingMd),
@@ -207,7 +247,7 @@ class _ProductOrderSummaryState extends State<ProductOrderSummary> {
             children: [
               Text('Total', style: AppTextStyles.headlineSmall),
               Text(
-                '৳${subtotal.toStringAsFixed(2)}',
+                '৳${total.toStringAsFixed(2)}',
                 style: AppTextStyles.headlineSmall.copyWith(color: AppColors.neonBlue),
               ),
             ],

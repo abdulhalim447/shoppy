@@ -119,6 +119,9 @@ Future<List<ProductModel>> getAllProducts() async {
 // In UI
 final products = ref.watch(productProvider);
 
+
+
+
 if (products.isLoading) {
   return CircularProgressIndicator();
 }
@@ -288,30 +291,7 @@ class OrderListPage extends ConsumerWidget {
 }
 ```
 
-## 🔐 Authentication
 
-### Adding Auth Headers
-
-```dart
-final authTokenProvider = StateProvider<String?>((ref) => null);
-
-final apiServiceProvider = Provider<ApiService>((ref) {
-  final token = ref.watch(authTokenProvider);
-  
-  return ApiService(
-    baseUrl: AppConstants.baseUrl,
-    defaultHeaders: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      if (token != null) 'Authorization': 'Bearer $token',
-    },
-  );
-});
-```
-
-## 📊 Error Messages (Bengali)
-
-- **Unauthorized**: "আপনার সেশন শেষ হয়েছে। দয়া করে আবার লগইন করুন।"
 - **Forbidden**: "আপনার এই অ্যাকশনের অনুমতি নেই।"
 - **Not Found**: "অনুরোধকৃত রিসোর্স পাওয়া যায়নি।"
 - **Timeout**: "অনুরোধ সময়মত সম্পন্ন হয়নি। দয়া করে আবার চেষ্টা করুন।"

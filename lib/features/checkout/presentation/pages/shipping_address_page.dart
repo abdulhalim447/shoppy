@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../config/constants/app_constants.dart';
 import '../../../../config/theme/app_colors.dart';
@@ -6,21 +7,22 @@ import '../../../../core/widgets/custom_app_bar.dart';
 import '../../../../core/widgets/gradient_button.dart';
 import '../../../home/data/models/product_model.dart';
 import '../../data/models/order_model.dart';
+import '../providers/delivery_charge_provider.dart';
 import '../widgets/address_form.dart';
 import '../widgets/product_order_summary.dart';
 
 /// Shipping address page for checkout
-class ShippingAddressPage extends StatefulWidget {
+class ShippingAddressPage extends ConsumerStatefulWidget {
   final ProductModel? product;
   final OrderModel? order;
 
   const ShippingAddressPage({Key? key, this.product, this.order}) : super(key: key);
 
   @override
-  State<ShippingAddressPage> createState() => _ShippingAddressPageState();
+  ConsumerState<ShippingAddressPage> createState() => _ShippingAddressPageState();
 }
 
-class _ShippingAddressPageState extends State<ShippingAddressPage> {
+class _ShippingAddressPageState extends ConsumerState<ShippingAddressPage> {
   late ShippingAddress _currentAddress;
 
   @override
@@ -38,6 +40,7 @@ class _ShippingAddressPageState extends State<ShippingAddressPage> {
           country: '',
           phoneNumber: '',
         );
+    Future.microtask(() => ref.read(deliveryChargeProvider.notifier).fetchDeliveryCharges());
   }
 
   void _onAddressChanged(ShippingAddress address) {

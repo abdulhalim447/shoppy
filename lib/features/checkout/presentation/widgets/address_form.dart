@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../../config/constants/app_constants.dart';
 import '../../data/models/order_model.dart';
 import 'form_field.dart';
@@ -75,7 +76,7 @@ class _AddressFormState extends State<AddressForm> {
         // Full Name
         CustomFormField(
           label: 'Full Name',
-          hintText: 'John Doe',
+          hintText: 'Your name',
           controller: _fullNameController,
           required: true,
           onChanged: (_) => _updateAddress(),
@@ -143,7 +144,7 @@ class _AddressFormState extends State<AddressForm> {
             Expanded(
               child: CustomFormField(
                 label: 'Country',
-                hintText: 'United States',
+                hintText: 'Bangladesh',
                 controller: _countryController,
                 required: true,
                 onChanged: (_) => _updateAddress(),
@@ -156,7 +157,7 @@ class _AddressFormState extends State<AddressForm> {
         // Phone Number
         CustomFormField(
           label: 'Phone Number',
-          hintText: '+1 (555) 000-0000',
+          hintText: '+88017xxxxxxxx',
           controller: _phoneNumberController,
           keyboardType: TextInputType.phone,
           required: true,

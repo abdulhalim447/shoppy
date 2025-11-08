@@ -52,9 +52,10 @@ class AppConstants {
   static const int maxAddressLength = 100;
 
   // API endpoints (placeholder)
-  static const String baseUrl = 'https://test.wbdlschema.com/api';
+  static const String baseUrl = 'https://admin.zodo.top/api';
   static const String productsEndpoint = '/products';
   static const String ordersEndpoint = '/orders';
+  static const String deliveryCharge = '/charges';
 
   // Dummy data
   static const String dummyUserName = 'Abdul Halim';
