@@ -7,7 +7,6 @@ import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/orders/presentation/pages/order_history_page.dart';
 import '../../features/product_details/data/models/product_details_model.dart';
 import '../../features/product_details/presentation/pages/product_details_page.dart';
-import '../../features/settings/presentation/pages/settings_page.dart';
 import '../constants/app_constants.dart';
 
 /// App router for navigation
@@ -102,9 +101,6 @@ class AppRouter {
       case AppConstants.routeOrderHistory:
         return MaterialPageRoute(builder: (_) => const OrderHistoryPage(), settings: settings);
 
-      case AppConstants.routeSettings:
-        return MaterialPageRoute(builder: (_) => const SettingsPage(), settings: settings);
-
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(body: Center(child: Text('No route defined for ${settings.name}'))),
@@ -131,10 +127,5 @@ class AppRouter {
   /// Navigate to order history
   static void goOrderHistory(BuildContext context) {
     Navigator.of(context).pushNamed(AppConstants.routeOrderHistory);
-  }
-
-  /// Navigate to settings
-  static void goSettings(BuildContext context) {
-    Navigator.of(context).pushNamed(AppConstants.routeSettings);
   }
 }

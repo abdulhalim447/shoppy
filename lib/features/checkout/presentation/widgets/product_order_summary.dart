@@ -9,6 +9,8 @@ import '../../../../core/widgets/shimmer_placeholder.dart';
 import '../../../home/data/models/product_model.dart';
 import '../../data/models/delivery_charge_model.dart';
 import '../providers/delivery_charge_provider.dart';
+import '../providers/quantity_provider.dart';
+import '../providers/total_amount_provider.dart';
 
 /// Product order summary widget for checkout
 class ProductOrderSummary extends ConsumerStatefulWidget {
@@ -38,6 +40,7 @@ class _ProductOrderSummaryState extends ConsumerState<ProductOrderSummary> {
     setState(() {
       _quantity++;
       widget.onQuantityChanged?.call(_quantity);
+      ref.read(quantityProvider.notifier).state = _quantity;
     });
   }
 
@@ -46,6 +49,7 @@ class _ProductOrderSummaryState extends ConsumerState<ProductOrderSummary> {
       setState(() {
         _quantity--;
         widget.onQuantityChanged?.call(_quantity);
+        ref.read(quantityProvider.notifier).state = _quantity;
       });
     }
   }
@@ -57,6 +61,8 @@ class _ProductOrderSummaryState extends ConsumerState<ProductOrderSummary> {
     final subtotal = price * _quantity;
     final shippingCost = _selectedShippingOption?.charge ?? 0.0;
     final total = subtotal + shippingCost;
+
+    Future.microtask(() => ref.read(totalAmountProvider.notifier).state = total);
 
     if (deliveryChargeState.isLoading) {
       return const Center(child: CircularProgressIndicator());

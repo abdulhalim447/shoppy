@@ -4,7 +4,7 @@ class AppConstants {
   AppConstants._();
 
   // App info
-  static const String appName = 'SHOPPY';
+  static const String appName = 'ZODO';
   static const String appVersion = '1.0.0';
 
   // Spacing
@@ -44,7 +44,6 @@ class AppConstants {
   static const String routeCheckout = '/checkout';
   static const String routeShippingAddress = '/shipping-address';
   static const String routeOrderHistory = '/order-history';
-  static const String routeSettings = '/settings';
 
   // Form validation
   static const int minPasswordLength = 8;
@@ -56,6 +55,7 @@ class AppConstants {
   static const String productsEndpoint = '/products';
   static const String ordersEndpoint = '/orders';
   static const String deliveryCharge = '/charges';
+  static const String orderTracking = '/orders/track';
 
   // Dummy data
   static const String dummyUserName = 'Abdul Halim';

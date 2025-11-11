@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../config/constants/app_constants.dart';
 import '../../../../config/theme/app_colors.dart';
@@ -52,10 +53,6 @@ class _HomePageState extends ConsumerState<HomePage> {
         // Orders
         Navigator.of(context).pushNamed(AppConstants.routeOrderHistory);
         break;
-      case 2:
-        // Settings
-        Navigator.of(context).pushNamed(AppConstants.routeSettings);
-        break;
     }
   }
 
@@ -68,14 +65,42 @@ class _HomePageState extends ConsumerState<HomePage> {
       appBar: BrandedAppBar(
         appName: AppConstants.appName,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.person_outline),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profile coming soon')));
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            onSelected: (value) {
+              if (value == 'privacy') {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return StatefulBuilder(
+                      builder: (context, setState) {
+                        return AlertDialog(
+                          title: const Text('Privacy Policy'),
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text('Open Link'),
+                              onPressed: () async {
+                                final Uri url = Uri.parse('https://sites.google.com/view/zodoapp/home');
+                                if (!await launchUrl(url)) {
+                                  throw Exception('Could not launch $url');
+                                }
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                );
+              }
             },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(value: 'privacy', child: Text('Privacy Policy')),
+            ],
           ),
         ],
       ),
+
       body: productState.isLoading
           ? const Center(child: CircularProgressIndicator())
           : productState.hasError
@@ -125,7 +150,6 @@ class _HomePageState extends ConsumerState<HomePage> {
         items: [
           BottomNavItem(icon: Icons.home, label: 'HOME', onTap: () => _onNavItemTap(0)),
           BottomNavItem(icon: Icons.history, label: 'ORDERS', onTap: () => _onNavItemTap(1)),
-          BottomNavItem(icon: Icons.settings, label: 'SETTINGS', onTap: () => _onNavItemTap(2)),
         ],
       ),
     );

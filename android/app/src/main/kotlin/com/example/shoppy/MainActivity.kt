@@ -1,4 +1,4 @@
-package com.example.shoppy
+package com.onimoshop.zodo
 
 import io.flutter.embedding.android.FlutterActivity
 

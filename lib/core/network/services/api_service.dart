@@ -1,7 +1,15 @@
 import 'dart:convert';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+
+import '../../../config/constants/app_constants.dart';
 import '../exceptions/api_exception.dart';
 import '../models/api_response.dart';
+
+final apiServiceProvider = Provider<ApiService>((ref) {
+  return ApiService(baseUrl: AppConstants.baseUrl);
+});
 
 /// Base API Service for handling HTTP requests
 class ApiService {
@@ -9,14 +17,8 @@ class ApiService {
   final Duration timeout;
   final Map<String, String> defaultHeaders;
 
-  ApiService({
-    required this.baseUrl,
-    this.timeout = const Duration(seconds: 30),
-    Map<String, String>? defaultHeaders,
-  }) : defaultHeaders = defaultHeaders ?? {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  };
+  ApiService({required this.baseUrl, this.timeout = const Duration(seconds: 30), Map<String, String>? defaultHeaders})
+    : defaultHeaders = defaultHeaders ?? {'Content-Type': 'application/json', 'Accept': 'application/json'};
 
   /// GET request
   Future<ApiResponse<T>> get<T>({
@@ -34,27 +36,23 @@ class ApiService {
 
       final response = await http
           .get(url, headers: mergedHeaders)
-          .timeout(timeout, onTimeout: () {
-        throw TimeoutException();
-      });
+          .timeout(
+            timeout,
+            onTimeout: () {
+              throw TimeoutException();
+            },
+          );
 
       print('📊 Response Status: ${response.statusCode}');
       print('Response Body: ${response.body}');
 
-      return _handleResponse<T>(
-        response: response,
-        fromJson: fromJson,
-      );
+      return _handleResponse<T>(response: response, fromJson: fromJson);
     } on ApiException {
       rethrow;
     } catch (e, stackTrace) {
       print('❌ GET Error: $e');
       print('Stack Trace: $stackTrace');
-      throw UnknownException(
-        message: 'GET request failed: $e',
-        originalException: e,
-        stackTrace: stackTrace,
-      );
+      throw UnknownException(message: 'GET request failed: $e', originalException: e, stackTrace: stackTrace);
     }
   }
 
@@ -76,40 +74,29 @@ class ApiService {
       print('Body: $jsonBody');
 
       final response = await http
-          .post(
-            url,
-            headers: mergedHeaders,
-            body: jsonBody,
-          )
-          .timeout(timeout, onTimeout: () {
-        throw TimeoutException();
-      });
+          .post(url, headers: mergedHeaders, body: jsonBody)
+          .timeout(
+            timeout,
+            onTimeout: () {
+              throw TimeoutException();
+            },
+          );
 
       print('📊 Response Status: ${response.statusCode}');
       print('Response Body: ${response.body}');
 
-      return _handleResponse<T>(
-        response: response,
-        fromJson: fromJson,
-      );
+      return _handleResponse<T>(response: response, fromJson: fromJson);
     } on ApiException {
       rethrow;
     } catch (e, stackTrace) {
       print('❌ POST Error: $e');
       print('Stack Trace: $stackTrace');
-      throw UnknownException(
-        message: 'POST request failed: $e',
-        originalException: e,
-        stackTrace: stackTrace,
-      );
+      throw UnknownException(message: 'POST request failed: $e', originalException: e, stackTrace: stackTrace);
     }
   }
 
   /// Handle HTTP response
-  ApiResponse<T> _handleResponse<T>({
-    required http.Response response,
-    required T Function(dynamic) fromJson,
-  }) {
+  ApiResponse<T> _handleResponse<T>({required http.Response response, required T Function(dynamic) fromJson}) {
     try {
       final statusCode = response.statusCode;
 
@@ -118,16 +105,9 @@ class ApiService {
         try {
           final jsonData = jsonDecode(response.body);
           final data = fromJson(jsonData);
-          return ApiResponse.success(
-            data: data,
-            statusCode: statusCode,
-          );
+          return ApiResponse.success(data: data, statusCode: statusCode);
         } catch (e, stackTrace) {
-          throw ParseException(
-            message: 'Failed to parse response: $e',
-            originalException: e,
-            stackTrace: stackTrace,
-          );
+          throw ParseException(message: 'Failed to parse response: $e', originalException: e, stackTrace: stackTrace);
         }
       }
 
@@ -176,18 +156,11 @@ class ApiService {
       }
 
       // Unknown status code
-      throw UnknownException(
-        message: 'Unknown status code: $statusCode',
-        originalException: response.body,
-      );
+      throw UnknownException(message: 'Unknown status code: $statusCode', originalException: response.body);
     } on ApiException {
       rethrow;
     } catch (e, stackTrace) {
-      throw UnknownException(
-        message: 'Error handling response: $e',
-        originalException: e,
-        stackTrace: stackTrace,
-      );
+      throw UnknownException(message: 'Error handling response: $e', originalException: e, stackTrace: stackTrace);
     }
   }
 
@@ -197,9 +170,7 @@ class ApiService {
       final jsonData = jsonDecode(responseBody);
       return ApiErrorResponse.fromJson(jsonData);
     } catch (e) {
-      return ApiErrorResponse(
-        message: responseBody.isNotEmpty ? responseBody : 'Unknown error',
-      );
+      return ApiErrorResponse(message: responseBody.isNotEmpty ? responseBody : 'Unknown error');
     }
   }
 
@@ -209,4 +180,3 @@ class ApiService {
     return Uri.parse(url).replace(queryParameters: queryParameters);
   }
 }
-
